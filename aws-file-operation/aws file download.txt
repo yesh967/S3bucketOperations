@@ -1,0 +1,85 @@
+
+
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
+
+import java.io.*;
+import java.util.logging.Logger;
+
+public class ListObjects {
+    public static void main(String[] args) {
+
+        Logger logger = Logger.getLogger(ListObjects.class.getName());
+        /* Create S3 Client Object */
+        AmazonS3 s3 = AmazonS3ClientBuilder
+                .standard()
+                .withRegion(Regions.US_EAST_1)
+                .withCredentials(new AWSStaticCredentialsProvider(
+                        new BasicAWSCredentials("AKIA42O3FNZMX25W4M3Y",
+                                "araPp8JQCvAAc1yUvwB2dr3M7JIvvf6xBThD8hdS")))
+                .build();
+
+        try {
+            /* Get first batch of objects in a given bucket */
+            ObjectListing objects = s3.listObjects("testing-all-operation");
+
+            /* Recursively get all the objects inside given bucket */
+            if (objects != null && objects.getObjectSummaries() != null) {
+                while (true) {
+                    for (S3ObjectSummary summary : objects.getObjectSummaries()) {
+                        System.out.println("FileName :- " + summary.getKey());
+                        String FileName = summary.getKey();
+                        //S3Object s3Object=s3.getObject(new GetObjectRequest("testing-all-operation", FileName));
+                        S3Object s3Object = s3.getObject("testing-all-operation", FileName);
+                        //System.out.println(s3Object);
+                        InputStream inputStream = s3Object.getObjectContent();
+
+                        //creating an InputStreamReader object
+                        InputStreamReader isReader = new InputStreamReader(inputStream);
+                        //Creating a BufferedReader object
+                        BufferedReader reader = new BufferedReader(isReader);
+                        StringBuffer sb = new StringBuffer();
+                        String str;
+                        try {
+                            while ((str = reader.readLine()) != null) {
+                                //boolean jsonAsString = ConvertJson(str);
+                                ConvertJson jsonObj = new ConvertJson();
+                                boolean jsonAsString = jsonObj.convertJson(str);
+                                sb.append(str);
+                            }
+                            //System.out.println("Original data: ");
+                            //System.out.println(sb.toString());
+                        } catch (Exception e) {
+                            logger.info("error");
+                        }
+                    }
+
+                    if (objects.isTruncated()) {
+                        objects = s3.listNextBatchOfObjects(objects);
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+        } catch (AmazonServiceException e) {
+
+            System.out.println(e.getErrorMessage());
+        } finally {
+
+            if (s3 != null) {
+                s3.shutdown();
+            }
+        }
+    }
+}
+
+
