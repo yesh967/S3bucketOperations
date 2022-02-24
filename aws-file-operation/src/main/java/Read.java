@@ -22,13 +22,10 @@ public class Read {
 
         Logger logger = Logger.getLogger(Read.class.getName());
         String bucketName = "testing-all-operation";
-        /* Create S3 Client Object */
+        // creating client(include credential for accessing bucket when running)
         AmazonS3 s3 = AmazonS3ClientBuilder
                 .standard()
                 .withRegion(Regions.US_EAST_1)
-                .withCredentials(new AWSStaticCredentialsProvider(
-                        new BasicAWSCredentials("AKIA42O3FNZMX25W4M3Y",
-                                "araPp8JQCvAAc1yUvwB2dr3M7JIvvf6xBThD8hdS")))
                 .build();
         try {
             /* Get first batch of objects in a given bucket */

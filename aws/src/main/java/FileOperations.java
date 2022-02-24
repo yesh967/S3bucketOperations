@@ -13,17 +13,16 @@ import java.util.List;
 
 public class FileOperations {
 
+
     public static void main(String[] args) throws IOException {
 
-       String bucketName="testing-all-operation";
+        String bucketName="testing-all-operation";
 
         System.setProperty("aws.region", "us-east-1");
 
+        // creating client(include credential for accessing bucket when running)
         AmazonS3 S3client = AmazonS3ClientBuilder
                 .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(
-                        new BasicAWSCredentials("AKIA42O3FNZMX25W4M3Y",
-                                "araPp8JQCvAAc1yUvwB2dr3M7JIvvf6xBThD8hdS")))
                 .build();
 
         int  i=0;
@@ -33,9 +32,9 @@ public class FileOperations {
         obj.add(new Testobj("clt2","tenerity2","S3aws2" ));
         obj.add(new Testobj("clt3","tenerity3","S3aws3" ));
 
-
+//iterating each list record and uploading to bucket
         for (Testobj t:obj
-             ) {
+        ) {
             i++;
             String temp=new Gson().toJson(t);
             System.out.println("\n"+i+" entry ");
